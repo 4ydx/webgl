@@ -44,6 +44,7 @@ func DefaultAttributes() *ContextAttributes {
 
 type Context struct {
 	*js.Object
+	Version                                      int
 	ARRAY_BUFFER                                 int `js:"ARRAY_BUFFER"`
 	ARRAY_BUFFER_BINDING                         int `js:"ARRAY_BUFFER_BINDING"`
 	ATTACHED_SHADERS                             int `js:"ATTACHED_SHADERS"`
@@ -357,8 +358,13 @@ func NewContext(canvas *js.Object, ca *ContextAttributes) (*Context, error) {
 		"premultipliedAlpha":    ca.PremultipliedAlpha,
 		"preserveDrawingBuffer": ca.PreserveDrawingBuffer,
 	}
-	gl := canvas.Call("getContext", "webgl", attrs)
+	version := 2
+	gl := canvas.Call("getContext", "webgl2", attrs)
 	if gl == nil {
+		version = 1
+		gl = canvas.Call("getContext", "webgl", attrs)
+	} else if gl == nil {
+		version = 1
 		gl = canvas.Call("getContext", "experimental-webgl", attrs)
 		if gl == nil {
 			return nil, errors.New("Creating a webgl context has failed.")
@@ -366,6 +372,7 @@ func NewContext(canvas *js.Object, ca *ContextAttributes) (*Context, error) {
 	}
 	ctx := new(Context)
 	ctx.Object = gl
+	ctx.Version = version
 	return ctx, nil
 }
 
@@ -417,6 +424,19 @@ func (c *Context) BindRenderbuffer(target int, renderbuffer *js.Object) {
 // Binds a named texture object to a target.
 func (c *Context) BindTexture(target int, texture *js.Object) {
 	c.Call("bindTexture", target, texture)
+}
+
+// Binds a named vertex array.
+func (c *Context) BindVertexArray(vao *js.Object) {
+	if c.Version == 1 {
+		ext := c.Call("getExtension", "OES_vertex_array_object")
+		if ext == nil {
+			return
+		}
+		ext.Call("bindVertexArrayOES", vao)
+		return
+	}
+	c.Call("bindVertexArray", vao)
 }
 
 // The GL_BLEND_COLOR may be used to calculate the source and destination blending factors.
@@ -534,6 +554,18 @@ func (c *Context) CreateTexture() *js.Object {
 	return c.Call("createTexture")
 }
 
+// Used to generate a WebGL2 Vertex Array object.
+func (c *Context) CreateVertexArray() *js.Object {
+	if c.Version == 1 {
+		ext := c.Call("getExtension", "OES_vertex_array_object")
+		if ext == nil {
+			return ext
+		}
+		return ext.Call("createVertexArrayOES")
+	}
+	return c.Call("createVertexArray")
+}
+
 // Sets whether or not front, back, or both facing facets are able to be culled.
 func (c *Context) CullFace(mode int) {
 	c.Call("cullFace", mode)
@@ -610,6 +642,19 @@ func (c *Context) DisableVertexAttribArray(index int) {
 // Render geometric primitives from bound and enabled vertex data.
 func (c *Context) DrawArrays(mode, first, count int) {
 	c.Call("drawArrays", mode, first, count)
+}
+
+// Render geometric primitives from bound and enabled vertex data.
+func (c *Context) DrawArraysInstanced(mode, first, count, instanceCount int) {
+	if c.Version == 1 {
+		ext := c.Call("getExtension", "ANGLE_instanced_arrays")
+		if ext == nil {
+			return
+		}
+		ext.Call("drawArraysInstancedANGLE", mode, first, count, instanceCount)
+		return
+	}
+	c.Call("drawArraysInstanced", mode, first, count, instanceCount)
 }
 
 // Renders geometric primitives indexed by element array data.
@@ -988,6 +1033,19 @@ func (c *Context) UseProgram(program *js.Object) {
 // Returns whether a given program can run in the current WebGL state.
 func (c *Context) ValidateProgram(program *js.Object) {
 	c.Call("validateProgram", program)
+}
+
+// Call VertexAttribDivisor.
+func (c *Context) VertexAttribDivisor(index, divisor int) {
+	if c.Version == 1 {
+		ext := c.Call("getExtension", "ANGLE_instanced_arrays")
+		if ext == nil {
+			return
+		}
+		ext.Call("vertexAttribDivisorANGLE", index, divisor)
+		return
+	}
+	c.Call("vertexAttribDivisor", index, divisor)
 }
 
 func (c *Context) VertexAttribPointer(index, size, typ int, normal bool, stride int, offset int) {
