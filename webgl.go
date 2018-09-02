@@ -576,6 +576,18 @@ func (c *Context) DeleteBuffer(buffer *js.Object) {
 	c.Call("deleteBuffer", buffer)
 }
 
+// Used to delete a WebGL2 Vertex Array object.
+func (c *Context) DeleteVertexArray() {
+	if c.Version == 1 {
+		ext := c.Call("getExtension", "OES_vertex_array_object")
+		if ext == nil {
+			return
+		}
+		ext.Call("deleteVertexArrayOES")
+	}
+	c.Call("deleteVertexArray")
+}
+
 // Deletes a specific WebGLFramebuffer object. If you delete the
 // currently bound framebuffer, the default framebuffer will be bound.
 // Deleting a framebuffer detaches all of its attachments.
