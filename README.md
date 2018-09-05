@@ -1,6 +1,6 @@
 # webgl
 
-[GopherJS](https://github.com/neelance/gopherjs) bindings for WebGL context.
+[GopherJS](https://github.com/neelance/gopherjs) bindings for WebGL context.  Supports a subset of webgl2: VAOs and instanced arrays.  Adding additional support is trivial and pull requests are welcome.
 
 ## Example
 
