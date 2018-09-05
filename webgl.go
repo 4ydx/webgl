@@ -363,11 +363,12 @@ func NewContext(canvas *js.Object, ca *ContextAttributes) (*Context, error) {
 	if gl == nil {
 		version = 1
 		gl = canvas.Call("getContext", "webgl", attrs)
-	} else if gl == nil {
-		version = 1
-		gl = canvas.Call("getContext", "experimental-webgl", attrs)
 		if gl == nil {
-			return nil, errors.New("Creating a webgl context has failed.")
+			version = 1
+			gl = canvas.Call("getContext", "experimental-webgl", attrs)
+			if gl == nil {
+				return nil, errors.New("Creating a webgl context has failed.")
+			}
 		}
 	}
 	// Wrapper for debugging
