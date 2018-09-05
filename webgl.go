@@ -370,6 +370,9 @@ func NewContext(canvas *js.Object, ca *ContextAttributes) (*Context, error) {
 			return nil, errors.New("Creating a webgl context has failed.")
 		}
 	}
+	// Wrapper for debugging
+	// gl = js.Global.Get("WebGLDebugUtils").Call("makeDebugContext", gl)
+
 	ctx := new(Context)
 	ctx.Object = gl
 	ctx.Version = version
@@ -577,15 +580,15 @@ func (c *Context) DeleteBuffer(buffer *js.Object) {
 }
 
 // Used to delete a WebGL2 Vertex Array object.
-func (c *Context) DeleteVertexArray() {
+func (c *Context) DeleteVertexArray(vao *js.Object) {
 	if c.Version == 1 {
 		ext := c.Call("getExtension", "OES_vertex_array_object")
 		if ext == nil {
 			return
 		}
-		ext.Call("deleteVertexArrayOES")
+		ext.Call("deleteVertexArrayOES", vao)
 	}
-	c.Call("deleteVertexArray")
+	c.Call("deleteVertexArray", vao)
 }
 
 // Deletes a specific WebGLFramebuffer object. If you delete the
