@@ -313,6 +313,7 @@ type Context struct {
 	TRIANGLES                                    int `js:"TRIANGLES"`
 	TRIANGLE_FAN                                 int `js:"TRIANGLE_FAN"`
 	TRIANGLE_STRIP                               int `js:"TRIANGLE_STRIP"`
+	UNIFORM_BUFFER                               int `js:"UNIFORM_BUFFER"`
 	UNPACK_ALIGNMENT                             int `js:"UNPACK_ALIGNMENT"`
 	UNPACK_COLORSPACE_CONVERSION_WEBGL           int `js:"UNPACK_COLORSPACE_CONVERSION_WEBGL"`
 	UNPACK_FLIP_Y_WEBGL                          int `js:"UNPACK_FLIP_Y_WEBGL"`
@@ -413,6 +414,13 @@ func (c *Context) BindAttribLocation(program *js.Object, index int, name string)
 // Associates a buffer with a buffer target.
 func (c *Context) BindBuffer(target int, buffer *js.Object) {
 	c.Call("bindBuffer", target, buffer)
+}
+
+// BindBufferBase associates a buffer with a given bindingPoint.
+// EG The bindingPoint is a user defined value that associates the given buffer with a UNIFORM_BUFFER that is also associated with the given bindingPoint via uniformBlockBinding.
+// Used when rendering.
+func (c *Context) BindBufferBase(target, bindingPoint int, buffer *js.Object) {
+	c.Call("bindBufferBase", target, bindingPoint, buffer)
 }
 
 // Associates a WebGLFramebuffer object with the FRAMEBUFFER bind target.
@@ -849,6 +857,12 @@ func (c *Context) GetUniformLocation(program *js.Object, name string) *js.Object
 	return c.Call("getUniformLocation", program, name)
 }
 
+// Returns a WebGLUniformBlockIndex
+// of the named uniform block from within the given WebGLProgram object.
+func (c *Context) GetUniformBlockIndex(program *js.Object, name string) int {
+	return c.Call("getUniformBlockIndex", program, name).Int()
+}
+
 // TODO: Create type specific variations.
 // Returns data for a particular characteristic of a vertex
 // attribute at an index in a vertex attribute array.
@@ -972,6 +986,14 @@ func (c *Context) TexParameteri(target int, pname int, param int) {
 // Replaces a portion of an existing 2D texture image with all of another image.
 func (c *Context) TexSubImage2D(target, level, xoffset, yoffset, format, typ int, image *js.Object) {
 	c.Call("texSubImage2D", target, level, xoffset, yoffset, format, typ, image)
+}
+
+// UniformBlockBinding assigns the binding point for an active uniform block.
+//  Index is determined by the call getUniformBlockIndex.
+//  BindingPoint associates an existing UNIFORM_BUFFER to the Uniform Block located at Index.
+//  BindBufferBase must also be called with the same bindingPoint in order for this to occur.
+func (c *Context) UniformBlockBinding(program *js.Object, index, bindingPoint int) {
+	c.Call("uniformBlockBinding", program, index, bindingPoint)
 }
 
 // Assigns a floating point value to a uniform variable for the current program object.
