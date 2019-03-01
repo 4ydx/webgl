@@ -668,6 +668,19 @@ func (c *Context) DrawArrays(mode, first, count int) {
 	c.Call("drawArrays", mode, first, count)
 }
 
+// DrawBuffers
+func (c *Context) DrawBuffers(buffers []int) {
+	if c.Version == 1 {
+		ext := c.Call("getExtension", "WEBGL_draw_buffers")
+		if ext == nil {
+			return
+		}
+		ext.Call("drawBuffersWEBGL", buffers)
+		return
+	}
+	c.Call("drawBuffers", buffers)
+}
+
 // Render geometric primitives from bound and enabled vertex data.
 func (c *Context) DrawArraysInstanced(mode, first, count, instanceCount int) {
 	if c.Version == 1 {
