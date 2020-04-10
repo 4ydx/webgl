@@ -1103,6 +1103,13 @@ func (c *Context) VertexAttribPointer(index, size, typ int, normal bool, stride 
 	c.Call("vertexAttribPointer", index, size, typ, normal, stride, offset)
 }
 
+func (c *Context) VertexAttribIPointer(index, size, typ int, stride int, offset int) {
+	if c.Version == 1 {
+		return
+	}
+	c.Call("vertexAttribIPointer", index, size, typ, stride, offset)
+}
+
 // public function vertexAttrib1f(indx:GLuint, x:GLfloat) : Void;
 // public function vertexAttrib2f(indx:GLuint, x:GLfloat, y:GLfloat) : Void;
 // public function vertexAttrib3f(indx:GLuint, x:GLfloat, y:GLfloat, z:GLfloat) : Void;
