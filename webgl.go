@@ -991,8 +991,8 @@ func (c *Context) TexImage2D(target, level, internalFormat, format, kind int, im
 	c.Call("texImage2D", target, level, internalFormat, format, kind, image)
 }
 
-func (c *Context) TexImage2DArrayBufferView(target, level, internalFormat, width, height, border, format, kind int, buffer []byte) {
-	c.Call("texImage2D", target, level, internalFormat, width, height, border, format, kind, buffer)
+func (c *Context) TexImage2DArrayBufferView(target, level, internalFormat, width, height, border, format, kind int, data *js.Object) {
+	c.Call("texImage2D", target, level, internalFormat, width, height, border, format, kind, data)
 }
 
 // Sets texture parameters for the current texture unit.
